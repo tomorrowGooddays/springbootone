@@ -5,7 +5,7 @@ public class Response<T> {
     private T Response;
     private String Message;
     private int ReturnCode;
-    private int Count;
+    private long Count;
 
     public Object getResponse() {
         return Response;
@@ -31,11 +31,11 @@ public class Response<T> {
         ReturnCode = returnCode;
     }
 
-    public int getCount() {
+    public long getCount() {
         return Count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         Count = count;
     }
 

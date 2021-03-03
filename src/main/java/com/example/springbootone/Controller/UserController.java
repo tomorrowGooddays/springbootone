@@ -6,6 +6,7 @@ import com.example.springbootone.model.requestdto.UserSearchRequest;
 import com.example.springbootone.service.UserService;
 import com.example.springbootone.serviceImpl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -46,6 +47,28 @@ public class UserController {
         response.setMessage("查询成功");
         response.setReturnCode(200);
         response.setResponse(users);
+        return response;
+    }
+
+    /*
+    post请求，body里面传请求结构:http://localhost:8888/user/searchbypage
+     */
+    @PostMapping("/user/searchbypagenew")
+    public Response<List<User>> PageSearchNew(@RequestBody UserSearchRequest userSearchRequest) {
+        Response<List<User>> response = new Response<List<User>>();
+        List<User> users = null;
+        try {
+            Page<User> usersDto = this.userService.SearhByPageNew(userSearchRequest);
+            response.setCount(usersDto.getTotalElements());
+            users = usersDto.getContent();
+            response.setResponse(users);
+
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+        }
+        response.setMessage("查询成功");
+        response.setReturnCode(200);
+
         return response;
     }
 }

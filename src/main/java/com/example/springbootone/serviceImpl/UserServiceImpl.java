@@ -6,6 +6,10 @@ import com.example.springbootone.model.User;
 import com.example.springbootone.model.requestdto.UserSearchRequest;
 import com.example.springbootone.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +32,18 @@ public class UserServiceImpl implements UserService {
         return this.userDao.findAll();
     }
 
-    public List<User> SearhByPage(UserSearchRequest userSearchRequest){
+    public List<User> SearhByPage(UserSearchRequest userSearchRequest) {
         return this.userDaoImpl.GetUserInfoList(userSearchRequest);
+    }
+
+    @Override
+    public Page<User> SearhByPageNew(UserSearchRequest userSearchRequest) {
+
+        int page = userSearchRequest.page > 0 ? userSearchRequest.page - 1 : 0;
+        int pageSize = userSearchRequest.pageSize > 0 ? userSearchRequest.pageSize : userSearchRequest.pageSize;
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        PageRequest request = PageRequest.of(page, pageSize, sort);
+
+        return this.userDaoImpl.GetUserInfoListByPage(userSearchRequest, request);
     }
 }
