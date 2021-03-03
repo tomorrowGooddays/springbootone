@@ -77,7 +77,7 @@ public class UserDaoImpl {
         int offset = (int) pageable.getOffset();
         int size = pageable.getPageSize();
 
-        dataQuery.setFirstResult(0);
+        dataQuery.setFirstResult(offset);
         dataQuery.setMaxResults(size);
 
         Long total = Long.valueOf(countQuery.getResultList().size());
