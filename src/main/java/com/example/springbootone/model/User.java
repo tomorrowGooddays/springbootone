@@ -1,5 +1,7 @@
 package com.example.springbootone.model;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 import javax.persistence.Entity;

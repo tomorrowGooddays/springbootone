@@ -2,6 +2,7 @@ package com.example.springbootone.Controller;
 
 import com.example.springbootone.model.Response;
 import com.example.springbootone.model.User;
+import com.example.springbootone.model.UserDto;
 import com.example.springbootone.model.requestdto.UserSearchRequest;
 import com.example.springbootone.service.UserService;
 import com.example.springbootone.serviceImpl.UserServiceImpl;
@@ -39,6 +40,7 @@ public class UserController {
     public Response<List<User>> PageSearch(@RequestBody UserSearchRequest userSearchRequest) {
         Response<List<User>> response = new Response<List<User>>();
         List<User> users = null;
+
         try {
             users = this.userService.SearhByPage(userSearchRequest);
         } catch (Exception exception) {
@@ -51,17 +53,29 @@ public class UserController {
     }
 
     /*
-    post请求，body里面传请求结构:http://localhost:8888/user/searchbypage
+    post请求，body里面传请求结构:http://localhost:8888/user/searchbypagenew
      */
     @PostMapping("/user/searchbypagenew")
-    public Response<List<User>> PageSearchNew(@RequestBody UserSearchRequest userSearchRequest) {
-        Response<List<User>> response = new Response<List<User>>();
-        List<User> users = null;
+    public Response<List<UserDto>> PageSearchNew(@RequestBody UserSearchRequest userSearchRequest) {
+        Response<List<UserDto>> response = new Response<List<UserDto>>();
+        List<UserDto> userDtos = null;
         try {
-            Page<User> usersDto = this.userService.SearhByPageNew(userSearchRequest);
-            response.setCount(usersDto.getTotalElements());
-            users = usersDto.getContent();
-            response.setResponse(users);
+            Page<List> pageRows = this.userService.SearhByPageNew(userSearchRequest);
+
+            long itemSize = pageRows.getTotalElements();//datacount
+            response.setCount(itemSize);
+
+            userDtos = new ArrayList<UserDto>((int) itemSize);
+            List rowsContent = pageRows.getContent();//data
+            if (itemSize > 0) {
+                for (Object obj : rowsContent) {
+                    HashMap hashMap = (HashMap) obj;
+
+                    userDtos.add(BuildUserDto(hashMap));
+                }
+            }
+
+            response.setResponse(userDtos);
 
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
@@ -70,5 +84,20 @@ public class UserController {
         response.setReturnCode(200);
 
         return response;
+    }
+
+    /*
+    构造返回结构实体
+     */
+    private static UserDto BuildUserDto(HashMap hashMap) {
+        return UserDto.builder()
+                .id(Integer.valueOf(hashMap.get("id").toString()))
+                .name(hashMap.get("name") == null ? "" : hashMap.get("name").toString())
+                .mobile(hashMap.get("mobile") == null ? "" : hashMap.get("mobile").toString())
+                .nick_name((hashMap.get("nickname") == null ? "" : hashMap.get("nickname").toString()))
+                .password(hashMap.get("password") == null ? "" : hashMap.get("password").toString())
+                .rtmp_pull_address(hashMap.get("rtmp_pull_address") == null ? "" : hashMap.get("rtmp_pull_address").toString())
+                .rtmp_push_address(hashMap.get("rtmp_push_address") == null ? "" : hashMap.get("rtmp_push_address").toString())
+                .build();
     }
 }

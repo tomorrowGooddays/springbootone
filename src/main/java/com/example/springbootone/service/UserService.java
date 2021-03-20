@@ -11,5 +11,5 @@ public interface UserService {
 
     List<User> SearhByPage(UserSearchRequest userSearchRequest);
 
-    Page<User> SearhByPageNew(UserSearchRequest userSearchRequest);
+    Page<List> SearhByPageNew(UserSearchRequest userSearchRequest);
 }

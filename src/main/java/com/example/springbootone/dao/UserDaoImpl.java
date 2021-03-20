@@ -1,7 +1,10 @@
 package com.example.springbootone.dao;
 
 import com.example.springbootone.model.User;
+import com.example.springbootone.model.UserDto;
 import com.example.springbootone.model.requestdto.UserSearchRequest;
+import org.hibernate.SQLQuery;
+import org.hibernate.transform.Transformers;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -50,29 +53,31 @@ public class UserDaoImpl {
     /*
     自定义sql条件拼接查询
      */
-    public Page<User> GetUserInfoListByPage(UserSearchRequest request, Pageable pageable) {
-        StringBuilder datasql = new StringBuilder("select * from user where 1 = 1 ");
-        StringBuilder countSql = new StringBuilder("select count(*) from user where 1 = 1 ");
+    public Page<List> GetUserInfoListByPage(UserSearchRequest request, Pageable pageable) {
+        StringBuilder datasql = new StringBuilder("SELECT u.*,i.rtmp_pull_address,i.rtmp_push_address from `user` u left join `info` i on u.id = i.id where 1 = 1");
+        StringBuilder countSql = new StringBuilder("SELECT count(*) from `user` u left join `info` i on u.id = i.id where 1 = 1");
         if (!request.getName().isEmpty()) {
-            datasql.append("AND name = '" + request.getName() + "' ");
-            countSql.append("AND name = '" + request.getName() + "' ");
+            datasql.append("AND u.name = '" + request.getName() + "' ");
+            countSql.append("AND u.name = '" + request.getName() + "' ");
         }
 
         if (request.getId() > 0) {
-            datasql.append(" AND id = " + request.getId() + "");
-            countSql.append(" AND id = " + request.getId() + "");
+            datasql.append(" AND u.id = " + request.getId() + "");
+            countSql.append(" AND u.id = " + request.getId() + "");
         }
 
         if (!request.getMobile().isEmpty()) {
-            datasql.append(" AND mobile like '%" + request.getMobile() + "%'");
-            countSql.append(" AND mobile like '%" + request.getMobile() + "%'");
+            datasql.append(" AND u.mobile like '" + request.getMobile() + "%'");
+            countSql.append(" AND u.mobile like '" + request.getMobile() + "%'");
         }
 
         System.out.println(countSql.toString());
         System.out.println(datasql.toString());
 
         Query countQuery = entityManager.createNativeQuery(countSql.toString());
-        Query dataQuery = entityManager.createNativeQuery(datasql.toString());
+        Query dataQuery = entityManager.createNativeQuery(datasql.toString());;
+        //将查询返回的值处理成键值对key-value格式
+        dataQuery.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 
         int offset = (int) pageable.getOffset();
         int size = pageable.getPageSize();
@@ -82,8 +87,8 @@ public class UserDaoImpl {
 
         Long total = Long.valueOf(countQuery.getResultList().size());
 
-        List<User> content = dataQuery.getResultList();
+        List rows = dataQuery.getResultList();
 
-        return new PageImpl<User>(content, pageable, total);
+        return new PageImpl<List>(rows, pageable, total);
     }
 }

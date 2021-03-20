@@ -37,13 +37,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> SearhByPageNew(UserSearchRequest userSearchRequest) {
+    public Page<List> SearhByPageNew(UserSearchRequest userSearchRequest) {
 
         int page = userSearchRequest.page > 0 ? userSearchRequest.page - 1 : 0;
-        int pageSize = userSearchRequest.pageSize > 0 ? userSearchRequest.pageSize : userSearchRequest.pageSize;
+        int pageSize = userSearchRequest.pageSize > 0 ? userSearchRequest.pageSize : 0;
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         PageRequest request = PageRequest.of(page, pageSize, sort);
 
-        return this.userDaoImpl.GetUserInfoListByPage(userSearchRequest, request);
+        return  this.userDaoImpl.GetUserInfoListByPage(userSearchRequest, request);
     }
 }
